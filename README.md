@@ -2,7 +2,7 @@
 https://developer.spotify.com/web-api/console/get-playlist-tracks/#complete
 
 # Objective
-The problem I saw with many social gatherings is that people want to play their own music, resulting in random people taking the hosts' phone to play music. Also, everyone is too lazy to add music to a collaborative playlist. My solution takes an N number of playlists and an X amount of minutes (party duration) and selects an equal amount of minutes from each playlist to total the party duration. Currently, it selects songs randomly from each playlist; however, I would like to add more data science into it including 
+The problem we saw with many social gatherings is that people want to play their own music, resulting in random people taking the hosts' phone to play music. Also, everyone is too lazy to add music to a collaborative playlist. My solution takes an N number of playlists and an X amount of minutes (party duration) and selects an equal amount of minutes from each playlist to total the party duration. Currently, it selects songs randomly from each playlist; however, I would like to add more data science into it including 
 * Song popularity
 * Repeated songs
 * Cross reference with Global top 100 songs
