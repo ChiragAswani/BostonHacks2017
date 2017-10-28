@@ -43,6 +43,8 @@
         <center><input type="submit" class="btn btn-default" style="width:200px"></center> 
         </form>
 
+        <select id="genres"></select>
+
       </div>
     </div>
     <script id="user-profile-template" type="text/x-handlebars-template">
@@ -216,6 +218,12 @@ slider.oninput = function() {
     $(wrapper).on("click",".remove_field", function(e) {
         e.preventDefault(); $(this).parent('div').remove(); x--;
     })
+
+    var append = $("#genres");
+    var genre_array = ["pop","dance pop","pop rap","rap","post-teen pop","tropical house","rock","modern rock","trap music","edm","hip hop","latin","southern hip hop","pop rock","r&b","neo mellow","alternative rock","dwn trap","classic rock","alternative metal"];
+    genre_array.map(n => {
+      $(append).append(`<option value="${n.replace(' ', '_')}">${n}</option>`);
+    });
     
 });
 </script>
