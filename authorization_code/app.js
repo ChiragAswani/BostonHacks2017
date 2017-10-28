@@ -100,20 +100,8 @@ app.get('/callback', function(req, res) {
           json: true
         };
         request.get(options, function(error, response, body) {
-          console.log(body);
+          //console.log(body);
         });
-        var playlists = {
-          url: 'https://api.spotify.com/v1/users/12150032742/playlists/2pz1x3ROaCJ9OalZqirkS5/tracks',
-          headers: { 'Authorization': 'Bearer ' + access_token },
-          json: true
-        };
-
-        request.get(playlists, function(error, response, body) {
-              //console.log(body);
-              })
-
-
-        
 
         // we can also pass the token to the browser to make requests from there
         res.redirect('/#' +
@@ -169,10 +157,12 @@ app.post('/mixify', function(req, res) {
           url: 'https://api.spotify.com/v1/users/12150032742/playlists/2pz1x3ROaCJ9OalZqirkS5/tracks',
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
-        };
-  
+  };
+  var currentPlaylist = 0
+  var finalplaylist = []
   request.get(playlists, function(error, response, body) {
-      console.log(body);
+      var currentDuration = 0
+      console.log(body.items[1])
   })
 
 });
