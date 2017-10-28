@@ -5,6 +5,7 @@
     <title>Mixify</title>
     <script src="jquery-3.2.1.min.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css.css">
     <!-- <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
@@ -55,8 +56,12 @@
             <center><textarea rows="4" cols="50" name="inputtedplaylists"></textarea></center>
             <center><label class="control-label" for="field1">Input Playlists (playlist, playlist, etc) </label></center>
         </div>
+        <div class="input_fields_wrap">
+          <button class="add_field_button">Add Playlists</button>
+          <div><input type="text" name="count"></div>
+        </div>
         <br>
-        <center><input type="submit" class="btn btn-default" style="width:1000px"></center> 
+        <center><input type="submit" class="btn btn-default" style="width:200px"></center> 
         </form>
 
       </div>
@@ -80,53 +85,7 @@
         </div>
       </div>
     </script>
-    
-<style>
-* {
-  .border-radius(0) !important;
-}
 
-#field {
-    margin-bottom:20px;
-}
-</style>
-
-<style>
-#slidecontainer {
-    width: 100%;
-}
-
-.slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 25px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-}
-
-.slider:hover {
-    opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    background: #4CAF50;
-    cursor: pointer;
-}
-</style>
 
     <br>
 
@@ -155,7 +114,7 @@
                 var fieldNum = this.id.charAt(this.id.length-1);
                 var fieldID = "#field" + fieldNum;
                 $(this).remove();
-                $(fieldID).remove();
+                $(fielddID).remove();
             });
     });
     
@@ -267,32 +226,23 @@ slider.oninput = function() {
       })();
     </script>
     <script>
-  $(document).ready(function(){
-    var next = 1;
-    $(".add-more").click(function(e){
+  $(document).ready(function() {
+    var max_fields = 100;
+    var wrapper = $(".input_fields_wrap");
+    var add_button = $(".add_field_button");
+    
+    var x = 1; 
+    $(add_button).click(function(e) {
         e.preventDefault();
-        var addto = "#field" + next;
-        var addRemove = "#field" + (next);
-        next = next + 1;
-        var newIn = '<input autocomplete="off" class="input form-control" id="field' + next + '" name="field' + next + '" type="text">';
-        var newInput = $(newIn);
-        var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger remove-me" >-</button></div><div id="field">';
-        var removeButton = $(removeBtn);
-        $(addto).after(newInput);
-        $(addRemove).after(removeButton);
-        $("#field" + next).attr('data-source',$(addto).attr('data-source'));
-        $("#count").val(next);  
-        
-            $('.remove-me').click(function(e){
-                e.preventDefault();
-                var fieldNum = this.id.charAt(this.id.length-1);
-                var fieldID = "#field" + fieldNum;
-                $(this).remove();
-                $(fieldID).remove();
-            });
+        if(x < max_fields) { 
+            x++; 
+            $(wrapper).append('<div><input type="text" name="count"/><a href="#" class="remove_field">Remove</a></div>');
+        }
     });
     
-
+    $(wrapper).on("click",".remove_field", function(e) {
+        e.preventDefault(); $(this).parent('div').remove(); x--;
+    })
     
 });
 </script>
