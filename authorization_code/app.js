@@ -102,6 +102,15 @@ app.get('/callback', function(req, res) {
         request.get(options, function(error, response, body) {
           console.log(body);
         });
+        var playlists = {
+          url: 'https://api.spotify.com/v1/users/12150032742/playlists/2pz1x3ROaCJ9OalZqirkS5/tracks',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+
+        request.get(playlists, function(error, response, body) {
+              console.log(body);
+              })
 
 
         
