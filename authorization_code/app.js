@@ -57,7 +57,7 @@ app.get('/login', function(req, res) {
 
 
 
-
+var access_token;
 
 app.get('/callback', function(req, res) {
 
@@ -91,8 +91,8 @@ app.get('/callback', function(req, res) {
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        var access_token = body.access_token,
-            refresh_token = body.refresh_token;
+            access_token = body.access_token;
+            var refresh_token = body.refresh_token;
 
         var options = {
           url: 'https://api.spotify.com/v1/me',
@@ -109,7 +109,7 @@ app.get('/callback', function(req, res) {
         };
 
         request.get(playlists, function(error, response, body) {
-              console.log(body);
+              //console.log(body);
               })
 
 
@@ -164,6 +164,16 @@ app.post('/mixify', function(req, res) {
 	var convertedPlaylists = convertUserPlaylists(userPlaylists);
 	console.log("to be imported: " + convertedPlaylists);
 	console.log("each playlist duration: " + playlistDuration);
+
+  var playlists = {
+          url: 'https://api.spotify.com/v1/users/12150032742/playlists/2pz1x3ROaCJ9OalZqirkS5/tracks',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+  
+  request.get(playlists, function(error, response, body) {
+      console.log(body);
+  })
 
 });
 
