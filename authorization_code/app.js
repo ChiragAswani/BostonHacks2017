@@ -250,7 +250,13 @@ app.post('/mixify', function(req, res) {
     playlists.url = convertedPlaylists[playlist];
     request.get(playlists, function(error, response, body) {
       console.log(body)
-      
+      try {
+        var error = body.error.status
+        console.log("FAILURE")
+      }
+      catch(err) {
+        console.log("SUCCESS")
+      }
       var currentDuration = 0
       var sortedplaylist = mergeSort(body.items);
       var i = 0;
@@ -295,6 +301,7 @@ app.post('/mixify', function(req, res) {
   })
 }
 res.sendfile(path.join(__dirname + '/public/mixify.html'));
+
 });
 
 
