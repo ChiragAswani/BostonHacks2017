@@ -31,6 +31,12 @@
 
         <center><h2>Mixify</h2></center><br>
         <form method="post" action="/mixify" name="/mixify">
+          <select id="genre" name="genre">
+            <option value="pop">pop</option>
+            <option value="dance pop">dance pop</option>
+            <option value="pop rap">pop rap</option>
+            <option value="rap">rap</option>
+          </select>
           <div id="slidecontainer">
             <input type="range" min="30" max="180" class="slider" id="myRange" name="slider">
             <center><p>Party Length (min): <span id="demo"></span></p></center>
@@ -44,9 +50,10 @@
 
         <br>
         <center><input type="submit" class="btn btn-default" style="width:200px"></center> 
+
         </form>
 
-        <select id="genres"></select>
+        
 
       </div>
     </div>

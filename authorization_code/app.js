@@ -44,7 +44,7 @@ app.get('/login', function(req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email';
+  var scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -58,6 +58,7 @@ app.get('/login', function(req, res) {
 
 
 var access_token;
+var username; 
 
 app.get('/callback', function(req, res) {
 
@@ -100,7 +101,7 @@ app.get('/callback', function(req, res) {
           json: true
         };
         request.get(options, function(error, response, body) {
-          //console.log(body);
+          username = body.id
         });
 
         // we can also pass the token to the browser to make requests from there
@@ -118,6 +119,34 @@ app.get('/callback', function(req, res) {
     });
   }
 });
+
+var contains = function(needle) {
+    // Per spec, the way to identify NaN is that it is not equal to itself
+    var findNaN = needle !== needle;
+    var indexOf;
+
+    if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+        indexOf = Array.prototype.indexOf;
+    } else {
+        indexOf = function(needle) {
+            var i = -1, index = -1;
+
+            for(i = 0; i < this.length; i++) {
+                var item = this[i];
+
+                if((findNaN && item !== item) || item === needle) {
+                    index = i;
+                    break;
+                }
+            }
+
+            return index;
+        };
+    }
+
+    return indexOf.call(this, needle) > -1;
+};
+
 
 function remove(arr) {
     var what, a = arguments, L = a.length, ax;
@@ -171,10 +200,26 @@ function merge(left, right)
     return result;
 }
 
+var finalplaylist = [];
+var createdplaylistid;
 
 app.post('/mixify', function(req, res) {
+  //creates a playlist
+  var createdplaylist = {
+          url: 'https://api.spotify.com/v1/users/chirag323/playlists',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          body: {"description": "Chirag, Tigran, Alex, Patrick",
+                 "public": false,
+                 "name": "Mixify Playlist"},
+          json: true
+  };
+  request.post(createdplaylist, function(error, response, body) {
+    createdplaylistid = body.id;
+  })
+
   //cleans up imported user playlists
   var messyinput = req.body.inputtedplaylists
+  var usergenre = req.body.genre
   var userPlaylists = messyinput.split(", ")
 
   //sets party duration, userplaylists, and playlist duration
@@ -186,35 +231,69 @@ app.post('/mixify', function(req, res) {
   console.log("to be imported: " + convertedPlaylists);
   console.log("each playlist duration: " + playlistDuration);
 
+
+
+
   var playlists = {
-          url: 'https://api.spotify.com/v1/users/sanik007/playlists/1TNg7JCxifAjwrnQARimex/tracks',
+          url: '',
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
   };
+  var artist = {
+                url: '',
+                headers: { 'Authorization': 'Bearer ' + access_token },
+                json: true
+  };
   var currentPlaylist = 0
-  var finalplaylist = []
+
   for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
     playlists.url = convertedPlaylists[playlist];
     request.get(playlists, function(error, response, body) {
       var currentDuration = 0
       var sortedplaylist = mergeSort(body.items);
       var i = 0;
+      var artistgenres = []
       while (currentDuration <= playlistDuration){
-        //for (i = 0; i < sortedplaylist.length; i++){
-            //if(sortedplaylist[0].track.id){
               //NEED TO CHECK DUPLICATED
-              finalplaylist.push(sortedplaylist[i].track.id)
-              currentDuration += sortedplaylist[i].track.duration_ms
+              
+              //artist.url = 'https://api.spotify.com/v1/artists/' + sortedplaylist[i].track.artists[0].id
+              //request.get(artist, function(error, response, body) {
+                //artistgenres = body.genres
+                //if (artistgenres != []){
+                  //var genrebool = contains.call(artistgenres, usergenre)
+                  //if (genrebool == false){
+                    var bool = contains.call(finalplaylist, sortedplaylist[i].track.id)
+                    if (bool == false){
+                      finalplaylist.push(sortedplaylist[i].track.id)
+                    currentDuration += sortedplaylist[i].track.duration_ms 
+                    } 
+                  //} 
+                //} 
+                //console.log(artistgenres)
+              //})
               i++;
+              
             //}
         //}
       }
-      console.log(finalplaylist)
+      console.log(finalplaylist);
+      console.log(createdplaylistid);
+
+      var addsongstoplaylist = {
+          url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod,spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+      };
+      for (finalplay = 0; finalplay < finalplaylist.length; finalplay++){
+        addsongstoplaylist.url = 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A' + finalplaylist[finalplay]
+        request.post(addsongstoplaylist, function(error, response, body) {
+
+        })
+      }
   })
 }
 
 });
-
 
 
 app.get('/refresh_token', function(req, res) {
