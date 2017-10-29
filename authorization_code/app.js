@@ -6,6 +6,7 @@ var async = require('async');
 var bodyParser = require('body-parser');
 var path = require('path');
 
+
 var client_id = '7dd4b4ac52fd4780899e7dd4cc3b632a'; // Your client id
 var client_secret = '827dfaf9723541d99953b27293ec91ab'; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
@@ -34,7 +35,6 @@ app.use(bodyParser());
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser());
-
 
 
 app.get('/login', function(req, res) {
@@ -203,6 +203,7 @@ function merge(left, right)
 var finalplaylist = [];
 var createdplaylistid;
 
+var errors = 0;
 app.post('/mixify', function(req, res) {
   //creates a playlist
   var createdplaylist = {
@@ -245,62 +246,70 @@ app.post('/mixify', function(req, res) {
                 json: true
   };
   var currentPlaylist = 0
-
   for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
     playlists.url = convertedPlaylists[playlist];
     request.get(playlists, function(error, response, body) {
       console.log(body)
       try {
         var error = body.error.status
-        console.log("FAILURE")
+        errors+= 1;
+        console.log(errors + 'errors');
       }
       catch(err) {
         console.log("SUCCESS")
-      }
-      var currentDuration = 0
-      var sortedplaylist = mergeSort(body.items);
-      var i = 0;
-      var artistgenres = []
-      while (currentDuration <= playlistDuration){
-              //NEED TO CHECK DUPLICATED
-              
-              //artist.url = 'https://api.spotify.com/v1/artists/' + sortedplaylist[i].track.artists[0].id
-              //request.get(artist, function(error, response, body) {
-                //artistgenres = body.genres
-                //if (artistgenres != []){
-                  //var genrebool = contains.call(artistgenres, usergenre)
-                  //if (genrebool == false){
-                    var bool = contains.call(finalplaylist, sortedplaylist[i].track.id)
-                    if (bool == false){
-                      finalplaylist.push(sortedplaylist[i].track.id)
-                    currentDuration += sortedplaylist[i].track.duration_ms 
-                    } 
+        var currentDuration = 0
+        var sortedplaylist = mergeSort(body.items);
+        var i = 0;
+        var artistgenres = []
+        while (currentDuration <= playlistDuration){
+                //NEED TO CHECK DUPLICATED
+                
+                //artist.url = 'https://api.spotify.com/v1/artists/' + sortedplaylist[i].track.artists[0].id
+                //request.get(artist, function(error, response, body) {
+                  //artistgenres = body.genres
+                  //if (artistgenres != []){
+                    //var genrebool = contains.call(artistgenres, usergenre)
+                    //if (genrebool == false){
+                      var bool = contains.call(finalplaylist, sortedplaylist[i].track.id)
+                      if (bool == false){
+                        finalplaylist.push(sortedplaylist[i].track.id)
+                      currentDuration += sortedplaylist[i].track.duration_ms 
+                      } 
+                    //} 
                   //} 
-                //} 
-                //console.log(artistgenres)
-              //})
-              i++;
-              
-            //}
-        //}
-      }
-      console.log(finalplaylist);
-      console.log(createdplaylistid);
+                  //console.log(artistgenres)
+                //})
+                i++;
+                
+              //}
+          //}
+        }
+        console.log(finalplaylist);
+        console.log(createdplaylistid);
 
-      var addsongstoplaylist = {
-          url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod,spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod',
-          headers: { 'Authorization': 'Bearer ' + access_token },
-          json: true
-      };
-      for (finalplay = 0; finalplay < finalplaylist.length; finalplay++){
-        addsongstoplaylist.url = 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A' + finalplaylist[finalplay]
-        request.post(addsongstoplaylist, function(error, response, body) {
+        var addsongstoplaylist = {
+            url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod,spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod',
+            headers: { 'Authorization': 'Bearer ' + access_token },
+            json: true
+        };
+        for (finalplay = 0; finalplay < finalplaylist.length; finalplay++){
+          addsongstoplaylist.url = 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A' + finalplaylist[finalplay]
+          request.post(addsongstoplaylist, function(error, response, body) {
 
-        })
-      }
+          })
+        }
+        }
+      
   })
 }
-res.sendfile(path.join(__dirname + '/public/mixify.html'));
+console.log('final errors' + errors)
+if (errors == 0){
+  res.sendfile(path.join(__dirname + '/public/mixify.html'));
+  
+}
+else{
+res.sendfile(path.join(__dirname + '/public/error.html'));
+}
 
 });
 
