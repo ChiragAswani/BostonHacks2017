@@ -71,3 +71,14 @@ body {
 .playlists input {
     margin-bottom: 10px;
 }
+
+#app {
+    background-color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 5px;
+}
+
+#genre {
+    margin-bottom: 10px;
+}
