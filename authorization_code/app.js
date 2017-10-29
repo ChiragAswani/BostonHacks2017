@@ -292,7 +292,7 @@ app.post('/mixify', function(req, res) {
       }
   })
 }
-
+res.sendfile(path.join(__dirname + '/public/mixify.html'));
 });
 
 
