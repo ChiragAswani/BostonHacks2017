@@ -249,6 +249,8 @@ app.post('/mixify', function(req, res) {
   for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
     playlists.url = convertedPlaylists[playlist];
     request.get(playlists, function(error, response, body) {
+      console.log(body)
+      
       var currentDuration = 0
       var sortedplaylist = mergeSort(body.items);
       var i = 0;
