@@ -138,6 +138,39 @@ function convertUserPlaylists(arr) {
        return convertedPlaylists;
 }
 
+function mergeSort(arr)
+{
+    if (arr.length < 2)
+        return arr;
+ 
+    var middle = parseInt(arr.length / 2);
+    var left   = arr.slice(0, middle);
+    var right  = arr.slice(middle, arr.length);
+ 
+    return merge(mergeSort(left), mergeSort(right));
+}
+
+function merge(left, right)
+{
+    var result = [];
+ 
+    while (left.length && right.length) {
+        if (left[0].track.popularity >= right[0].track.popularity) {
+            result.push(left.shift());
+        } else {
+            result.push(right.shift());
+        }
+    }
+ 
+    while (left.length)
+        result.push(left.shift());
+ 
+    while (right.length)
+        result.push(right.shift());
+ 
+    return result;
+}
+
 
 app.post('/mixify', function(req, res) {
 	//cleans up imported user playlists
@@ -154,16 +187,30 @@ app.post('/mixify', function(req, res) {
 	console.log("each playlist duration: " + playlistDuration);
 
   var playlists = {
-          url: 'https://api.spotify.com/v1/users/12150032742/playlists/2pz1x3ROaCJ9OalZqirkS5/tracks',
+          url: 'https://api.spotify.com/v1/users/sanik007/playlists/1TNg7JCxifAjwrnQARimex/tracks',
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
   };
   var currentPlaylist = 0
   var finalplaylist = []
+  for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
+  playlists.url = convertedPlaylists[playlist];
   request.get(playlists, function(error, response, body) {
       var currentDuration = 0
-      console.log(body.items[1])
+      var sortedplaylist = mergeSort(body.items);
+      var i = 0;
+      while (currentDuration <= playlistDuration){
+        //for (i = 0; i < sortedplaylist.length; i++){
+            //if(sortedplaylist[0].track.id){
+              finalplaylist.push(sortedplaylist[i].track.id)
+              currentDuration += sortedplaylist[i].track.duration_ms
+              i++;
+            //}
+        //}
+      }
+      console.log(finalplaylist)
   })
+}
 
 });
 
