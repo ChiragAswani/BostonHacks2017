@@ -38,7 +38,7 @@ app.use(express.static(__dirname + '/public'))
 
 
 app.get('/login', function(req, res) {
-	console.log("LOGIN")
+  console.log("LOGIN")
   console.log(req.body)
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
@@ -57,7 +57,7 @@ app.get('/login', function(req, res) {
 
 
 
-
+var access_token;
 
 app.get('/callback', function(req, res) {
 
@@ -91,8 +91,8 @@ app.get('/callback', function(req, res) {
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        var access_token = body.access_token,
-            refresh_token = body.refresh_token;
+            access_token = body.access_token;
+            var refresh_token = body.refresh_token;
 
         var options = {
           url: 'https://api.spotify.com/v1/me',
@@ -102,12 +102,6 @@ app.get('/callback', function(req, res) {
         request.get(options, function(error, response, body) {
           //console.log(body);
         });
-<<<<<<< HEAD
-
-
-        
-=======
->>>>>>> fe54870ab297feb5266dacbc2c35bc9233887c3c
 
         // we can also pass the token to the browser to make requests from there
         res.redirect('/#' +
@@ -179,21 +173,19 @@ function merge(left, right)
 
 
 app.post('/mixify', function(req, res) {
-	//cleans up imported user playlists
-	var messyinput = req.body.inputtedplaylists;
-	var userPlaylists = messyinput.split(", ");
+  //cleans up imported user playlists
+  var messyinput = req.body.inputtedplaylists
+  var userPlaylists = messyinput.split(", ")
 
-	//sets party duration, userplaylists, and playlist duration
-	var partyDuration = req.body.slider;
-	var playlistDuration = ((partyDuration*60000)/userPlaylists.length);
+  //sets party duration, userplaylists, and playlist duration
+  var partyDuration = req.body.slider;
+  var playlistDuration = ((partyDuration*60000)/userPlaylists.length);
 
-	//converts userplaylist to api url links
-	var convertedPlaylists = convertUserPlaylists(userPlaylists);
-	console.log("to be imported: " + convertedPlaylists);
-	console.log("each playlist duration: " + playlistDuration);
+  //converts userplaylist to api url links
+  var convertedPlaylists = convertUserPlaylists(userPlaylists);
+  console.log("to be imported: " + convertedPlaylists);
+  console.log("each playlist duration: " + playlistDuration);
 
-<<<<<<< HEAD
-=======
   var playlists = {
           url: 'https://api.spotify.com/v1/users/sanik007/playlists/1TNg7JCxifAjwrnQARimex/tracks',
           headers: { 'Authorization': 'Bearer ' + access_token },
@@ -221,7 +213,6 @@ app.post('/mixify', function(req, res) {
   })
 }
 
->>>>>>> fe54870ab297feb5266dacbc2c35bc9233887c3c
 });
 
 
