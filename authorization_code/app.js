@@ -194,14 +194,15 @@ app.post('/mixify', function(req, res) {
   var currentPlaylist = 0
   var finalplaylist = []
   for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
-  playlists.url = convertedPlaylists[playlist];
-  request.get(playlists, function(error, response, body) {
+    playlists.url = convertedPlaylists[playlist];
+    request.get(playlists, function(error, response, body) {
       var currentDuration = 0
       var sortedplaylist = mergeSort(body.items);
       var i = 0;
       while (currentDuration <= playlistDuration){
         //for (i = 0; i < sortedplaylist.length; i++){
             //if(sortedplaylist[0].track.id){
+              //NEED TO CHECK DUPLICATED
               finalplaylist.push(sortedplaylist[i].track.id)
               currentDuration += sortedplaylist[i].track.duration_ms
               i++;
