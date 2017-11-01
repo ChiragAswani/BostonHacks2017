@@ -5,12 +5,12 @@ var cookieParser = require('cookie-parser');
 var async = require('async');
 var bodyParser = require('body-parser');
 var path = require('path');
-
+var Promise = require('promise');
 
 var client_id = '7dd4b4ac52fd4780899e7dd4cc3b632a'; // Your client id
 var client_secret = '827dfaf9723541d99953b27293ec91ab'; // Your secret
-var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-
+var redirect_uri = 'http://localhost:8888/callback'; 
+//var redirect_uri = 'ec2-52-207-214-118.compute-1.amazonaws.com:8080/callback';
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -38,8 +38,6 @@ app.use(express.static(__dirname + '/public'))
 
 
 app.get('/login', function(req, res) {
-  console.log("LOGIN")
-  console.log(req.body)
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
 
@@ -102,6 +100,8 @@ app.get('/callback', function(req, res) {
         };
         request.get(options, function(error, response, body) {
           username = body.id
+          console.log("User Information")
+          console.log(body)
         });
 
         // we can also pass the token to the browser to make requests from there
@@ -159,19 +159,21 @@ function remove(arr) {
     return arr;
 }
 function convertUserPlaylists(arr) {
+	   if (arr.length > 50){
+	   		arr = [arr]
+	   }
        var convertedPlaylists = [];
-       for (i = 0; i < arr.length; i++){
-          var split = arr[i].split('/');
-          convertedPlaylists.push('https://api.spotify.com/v1/users/' + split[4] + '/playlists/' + split[6] + '/tracks');
-       }
-       return convertedPlaylists;
+       	for (i = 0; i < arr.length; i++){
+          var split = arr[i].split("/");
+          convertedPlaylists.push('https://api.spotify.com/v1/users/' + split[4] + '/playlists/' + split[6] + '/tracks'); 
+   		}
+   return convertedPlaylists;
 }
 
 function mergeSort(arr)
 {
     if (arr.length < 2)
         return arr;
- 
     var middle = parseInt(arr.length / 2);
     var left   = arr.slice(0, middle);
     var right  = arr.slice(middle, arr.length);
@@ -203,114 +205,87 @@ function merge(left, right)
 var finalplaylist = [];
 var createdplaylistid;
 
+
 var errors = 0;
 app.post('/mixify', function(req, res) {
   //creates a playlist
   var createdplaylist = {
           url: 'https://api.spotify.com/v1/users/chirag323/playlists',
           headers: { 'Authorization': 'Bearer ' + access_token },
-          body: {"description": "Chirag, Tigran, Alex, Patrick",
+          body: {"description": "Private playlist created by mixifyapp",
                  "public": false,
                  "name": "Mixify Playlist"},
           json: true
   };
   request.post(createdplaylist, function(error, response, body) {
     createdplaylistid = body.id;
+    console.log("User Created Playlist Information")
+    console.log(body)
   })
 
   //cleans up imported user playlists
-  var messyinput = req.body.inputtedplaylists
   var usergenre = req.body.genre
-  var userPlaylists = messyinput.split(", ")
-
-  //sets party duration, userplaylists, and playlist duration
-  var partyDuration = req.body.slider;
-  var playlistDuration = ((partyDuration*60000)/userPlaylists.length);
+  var userPlaylists = req.body.count
 
   //converts userplaylist to api url links
   var convertedPlaylists = convertUserPlaylists(userPlaylists);
-  console.log("to be imported: " + convertedPlaylists);
-  console.log("each playlist duration: " + playlistDuration);
+  console.log("List of User Playlists to send to API")
+  console.log(convertedPlaylists)
 
-
-
+  //sets party duration, userplaylists, and playlist duration
+  var partyDuration = req.body.slider;
+  var playlistDuration = ((partyDuration*60000)/convertedPlaylists.length);
+  console.log("Party Duration: " + partyDuration + " Each playlist duration: " + playlistDuration)
 
   var playlists = {
           url: '',
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
   };
-  var artist = {
-                url: '',
-                headers: { 'Authorization': 'Bearer ' + access_token },
-                json: true
-  };
   var currentPlaylist = 0
+  var totalSongs = [] //used to test for duplicates
+  var error = false;
   for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
     playlists.url = convertedPlaylists[playlist];
+    console.log("Fetching data from playlist: " + playlists.url)
     request.get(playlists, function(error, response, body) {
-      console.log(body)
-      try {
-        var error = body.error.status
-        errors+= 1;
-        console.log(errors + 'errors');
-      }
-      catch(err) {
-        console.log("SUCCESS")
-        var currentDuration = 0
+        var currentDuration = 0;
+        try{
         var sortedplaylist = mergeSort(body.items);
-        var i = 0;
-        var artistgenres = []
+        var song = 0;
         while (currentDuration <= playlistDuration){
-                //NEED TO CHECK DUPLICATED
+        		if (totalSongs.indexOf(sortedplaylist[song].track.id) == -1){
+        			finalplaylist.push(sortedplaylist[song].track.id)
+        			totalSongs.push(sortedplaylist[song].track.id) //used to test for duplicates
+                	currentDuration += sortedplaylist[song].track.duration_ms
+                	console.log("Current Duration: " + currentDuration + " Iteration: " + song)
+        		}
                 
-                //artist.url = 'https://api.spotify.com/v1/artists/' + sortedplaylist[i].track.artists[0].id
-                //request.get(artist, function(error, response, body) {
-                  //artistgenres = body.genres
-                  //if (artistgenres != []){
-                    //var genrebool = contains.call(artistgenres, usergenre)
-                    //if (genrebool == false){
-                      var bool = contains.call(finalplaylist, sortedplaylist[i].track.id)
-                      if (bool == false){
-                        finalplaylist.push(sortedplaylist[i].track.id)
-                      currentDuration += sortedplaylist[i].track.duration_ms 
-                      } 
-                    //} 
-                  //} 
-                  //console.log(artistgenres)
-                //})
-                i++;
-                
-              //}
-          //}
-        }
-        console.log(finalplaylist);
-        console.log(createdplaylistid);
+        		song++;
 
-        var addsongstoplaylist = {
-            url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod,spotify%3Atrack%3A6kig1UFggPUyZBCvXD3Wod',
-            headers: { 'Authorization': 'Bearer ' + access_token },
-            json: true
-        };
-        for (finalplay = 0; finalplay < finalplaylist.length; finalplay++){
-          addsongstoplaylist.url = 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=' + 'spotify%3Atrack%3A' + finalplaylist[finalplay]
-          request.post(addsongstoplaylist, function(error, response, body) {
-
-          })
         }
+    	console.log("Songs to add to playlist: ")
+    	console.log(finalplaylist)
+    	var addSongsToPlaylist = {
+        	url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=',
+        	headers: { 'Authorization': 'Bearer ' + access_token },
+        	json: true
+    	};
+    	for (songID = 0; songID < finalplaylist.length; songID++){
+        	addSongsToPlaylist.url += 'spotify%3Atrack%3A'+ finalplaylist[songID] + ','
+    	} 
+    	console.log("Number of snapshots should be equal to number of playlists")
+    	request.post(addSongsToPlaylist, function(error, response, body) {
+        		console.log(body)
+       	})
+    	finalplaylist = [];
         }
-      
-  })
-}
-console.log('final errors' + errors)
-if (errors == 0){
-  res.sendfile(path.join(__dirname + '/public/mixify.html'));
-  
-}
-else{
-res.sendfile(path.join(__dirname + '/public/error.html'));
-}
-
+        catch(err){  
+        error = true;
+        }
+  	})
+   }
+	res.sendfile(path.join(__dirname + '/public/mixify.html'));
 });
 
 
@@ -332,7 +307,6 @@ app.get('/refresh_token', function(req, res) {
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       var access_token = body.access_token;
-      console.log(access_token);
       res.send({
         'access_token': access_token
       });
@@ -343,39 +317,6 @@ app.get('/refresh_token', function(req, res) {
 console.log('Listening on 8888');
 app.listen(8888);
 
-// use the access token to access the Spotify Web API
-        /**
-        var finalPlaylistSongs = [];
-        var playlists = {
-          url: 'https://api.spotify.com/v1/users/12150032742/playlists/2pz1x3ROaCJ9OalZqirkS5/tracks',
-          headers: { 'Authorization': 'Bearer ' + access_token },
-          json: true
-        };
-            var currentPlaylist = 0
-            var finalPlaylistSongs = []
-            while (currentPlaylist < userPlaylists.length){
-              playlists.url = convertedPlaylists[currentPlaylist]
-              request.get(playlists, function(error, response, body) {
-              console.log("Number of Songs in Playlist" + body.total)
-              numSongsInPlaylist = body.total;
-              var playlistItems = body.items;
-              currentDuration =  0
-              currentSongs = []
-              while (currentDuration < playlistDuration){
-              
-                var randomNum = Math.floor(Math.random() * 99)
-                var songDuration = playlistItems[randomNum].track.duration_ms
-                var songUri = playlistItems[randomNum].track.uri
-                console.log("Song Duration:" + songDuration);
-                if (currentSongs.indexOf(songUri) == -1){
-                    currentSongs.push(songUri)
-                    currentDuration += songDuration
-                }
-                console.log("Current Duration:" + currentDuration);
-              }
-                finalPlaylistSongs = finalPlaylistSongs.concat(currentSongs);
-                console.log(finalPlaylistSongs)
-              })
-            currentPlaylist += 1
-            }      
-            **/
+//console.log('Listening on 80');
+//app.listen(80);
+

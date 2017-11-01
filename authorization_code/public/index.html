@@ -13,7 +13,29 @@
   </head>
   
   <body>
-    <img class="logo" src="http://www.scdn.co/i/_global/open-graph-default.png"></img>
+    <div class="row">
+               <div class="col-lg-6">
+                  <img class="logo" src="http://www.scdn.co/i/_global/open-graph-default.png">
+               </div>
+               <br>
+               <br>
+               <div class="col-lg-6" id="column">
+                    <div class="panel panel-default" id="column2">
+                        <div class="panel-body">
+                            <div class="tab-content">
+                                <div class="tab-pane fade in active" id="home">
+                                    <center><h4>How To</h4></center>
+                                    <ol>1. Set your playlist duration</ol>
+                                    <ol>2. "Copy Playlist Link" on a playlist in Spotify </ol>
+                                    <ol>3. Add playlist link under "Add Playlists"</ol>
+                                    <ol>4. Click "Add Playlists" if you need to import more playlists</ol>
+                                    <ol>4. Click submit and your "Mixify Playlist" wil be generated for you</ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+            </div>
     <div class="container">
       <div id="login">
         <h1></h1>
@@ -29,29 +51,28 @@
         </div>
         <!-- <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button> -->
         <div id="app">
+
         <center><h2>Mixify</h2></center><br>
         <form method="post" action="/mixify" name="/mixify">
           
           <div id="slidecontainer">
             <input type="range" min="30" max="180" class="slider" id="myRange" name="slider">
-            <center><p>Party Length (min): <span id="demo"></span></p></center>
+            <center><p>Event Duration (min): <span id="demo"></span></p></center>
           </div>
+
         <div class="playlists">
           <button class="add_field_button">Add Playlists</button>
-          <div class="playlist"><input type="text" name="count"></div>
+          <div><input type="text" name="count" ></div>
         </div>
         <select id="genre" name="genre">
-            <option value="pop">pop</option>
-            <option value="dance pop">dance pop</option>
-            <option value="pop rap">pop rap</option>
-            <option value="rap">rap</option>
-          </select>
+            <option value="pop">Mixed</option>
+        </select>
           <br>
-        <textarea rows="4" cols="50" name="inputtedplaylists" id="inputtedplaylists" style="width: 300px;"></textarea>
-        <p color="white">(playlist url, playlist url, etc)</p>
 
         <br>
-        <center><input type="submit" class="btn btn-default" ></center> 
+        <input type="submit" class="btn btn-default" style="width:100%">
+        <br>
+        <br>
 
         </form>
       </div>
@@ -60,7 +81,9 @@
 
       </div>
     </div>
+
     <script id="user-profile-template" type="text/x-handlebars-template">
+      <br>
       <h1>Logged in as {{display_name}}</h1>
       <div class="media">
         <div class="pull-left">

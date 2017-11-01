@@ -49,8 +49,29 @@ body {
     cursor: pointer;
 }
 
-#login, #loggedin {
-    display: none;
+#login{
+   display: none; 
+} 
+
+#loggedin {
+    display: none; 
+    background-color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 10px;
+    
+}
+
+#column {
+    padding-left: 0px;
+    padding-right: 200px;
+    border-radius: 10px;
+    
+}
+#column2 {
+
+    border-radius: 15px;
+    
 }
 
 .text-overflow {
@@ -70,6 +91,7 @@ body {
 
 .playlists input {
     margin-bottom: 10px;
+    width: 300px;
 }
 
 #app {
@@ -82,3 +104,4 @@ body {
 #genre {
     margin-bottom: 10px;
 }
+
