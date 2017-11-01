@@ -9,7 +9,7 @@ var Promise = require('promise');
 
 var client_id = '7dd4b4ac52fd4780899e7dd4cc3b632a'; // Your client id
 var client_secret = '827dfaf9723541d99953b27293ec91ab'; // Your secret
-var redirect_uri = 'http://localhost:8888/callback'; 
+var redirect_uri = 'http://localhost:8080/callback'; 
 //var redirect_uri = 'ec2-52-207-214-118.compute-1.amazonaws.com:8080/callback';
 /**
  * Generates a random string containing numbers and letters
@@ -314,8 +314,8 @@ app.get('/refresh_token', function(req, res) {
   });
 });
 
-console.log('Listening on 8888');
-app.listen(8888);
+console.log('Listening on 8080');
+app.listen(8080);
 
 //console.log('Listening on 80');
 //app.listen(80);
