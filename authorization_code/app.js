@@ -210,7 +210,7 @@ var errors = 0;
 app.post('/mixify', function(req, res) {
   //creates a playlist
   var createdplaylist = {
-          url: 'https://api.spotify.com/v1/users/chirag323/playlists',
+          url: 'https://api.spotify.com/v1/users/' + username + '/playlists',
           headers: { 'Authorization': 'Bearer ' + access_token },
           body: {"description": "Private playlist created by mixifyapp",
                  "public": false,
