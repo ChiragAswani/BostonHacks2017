@@ -32,6 +32,9 @@ var stateKey = 'spotify_auth_state';
 
 var app = express();
 app.use(bodyParser());
+var access_token;
+var username; 
+var usernames;
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser());
@@ -42,7 +45,7 @@ app.get('/login', function(req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private';
+  var scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -54,14 +57,21 @@ app.get('/login', function(req, res) {
 });
 
 
+app.post('/usernames', function(req, res) {
+	if (req.body.count[0].length == 1){
+		usernames = [req.body.count]
+	}
+	else{
+		usernames = req.body.count
+	}
+})
 
-var access_token;
-var username; 
+
+
+
 
 app.get('/callback', function(req, res) {
-
-  // your application requests refresh and access tokens
-  // after checking the state parameter
+  console.log("Users you are collaborating with: " + usernames)
   var code = req.query.code || null;
   var state = req.query.state || null;
   var storedState = req.cookies ? req.cookies[stateKey] : null;
@@ -98,11 +108,45 @@ app.get('/callback', function(req, res) {
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
         };
+
         request.get(options, function(error, response, body) {
           username = body.id
-          console.log("User Information")
-          console.log(body)
+          console.log("Display Name: " + body.display_name)
+          console.log("User ID: " + body.id)
+          console.log("User URI: " + body.uri)
         });
+
+        var importedUserPlaylists = {
+          url: '',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+
+        
+		var dict = [];
+        for (usrname = 0; usrname < usernames.length; usrname++){
+        	var temp = [];
+        	importedUserPlaylists.url = 'https://api.spotify.com/v1/users/' + usernames[usrname] +'/playlists';
+        	request.get(importedUserPlaylists, function(error, response, body) {
+        		for (item = 0; item < (body.items).length; item++){
+        			var playlistset = body.items[item]
+        			temp.push({
+    					playlistname: playlistset.name,
+    					playlistimage: playlistset.images,
+    					playlisturl: playlistset.href
+					});
+					
+        		}
+          		dict = dict.concat(temp)
+          		console.log(dict)	
+        	});
+
+        }
+
+        
+        
+
+
 
         // we can also pass the token to the browser to make requests from there
         res.redirect('/#' +
@@ -248,6 +292,9 @@ app.post('/mixify', function(req, res) {
   for (playlist = 0; playlist < convertedPlaylists.length; playlist++){
     playlists.url = convertedPlaylists[playlist];
     console.log("Fetching data from playlist: " + playlists.url)
+    //request.get(playlists, function(error, response, body) {
+    	//console.log(body.error.status == 404)
+    //})
     request.get(playlists, function(error, response, body) {
         var currentDuration = 0;
         try{
@@ -280,12 +327,20 @@ app.post('/mixify', function(req, res) {
        	})
     	finalplaylist = [];
         }
-        catch(err){  
+        catch(err){
+        console.log("Error in Fetching Playlist")  
         error = true;
         }
   	})
    }
-	res.sendfile(path.join(__dirname + '/public/mixify.html'));
+   	for (fake = 0; fake < 100000; fake++){}
+   	console.log("final error" + error)
+   	if (error == false){
+   		res.sendfile(path.join(__dirname + '/public/mixify.html'));
+   	}else{
+   		res.sendfile(path.join(__dirname + '/public/error.html'));
+   	}
+	
 });
 
 
