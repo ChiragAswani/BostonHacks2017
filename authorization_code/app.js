@@ -241,7 +241,28 @@ function merge(left, right)
           } else {
             result.push(right.shift());
          }
+        }
+        if (sorttype == "tempo"){
+          if (left[0].tempo >= right[0].tempo) {   
+            result.push(left.shift());
+          } else {
+            result.push(right.shift());
+         }
         } 
+        if (sorttype == "energy"){
+          if (left[0].energy >= right[0].energy) {   
+            result.push(left.shift());
+          } else {
+            result.push(right.shift());
+         }
+        }
+        if (sorttype == "liveness"){
+          if (left[0].liveness >= right[0].liveness) {   
+            result.push(left.shift());
+          } else {
+            result.push(right.shift());
+         }
+        }   
         
     }
  
@@ -325,23 +346,21 @@ app.post('/mixify', function(req, res) {
         		song++;
        		  }
            }
-          if (sorttype == "danceability"){
+          else{
             var trackids = ""
               for (trackid = 0; trackid < body.items.length; trackid++){
                 trackids = trackids + body.items[trackid].track.id + ','
 
               }              
-              var danceability = {
+              var uniqueSort = {
                 url: 'https://api.spotify.com/v1/audio-features?ids=' + trackids,
                 headers: { 'Authorization': 'Bearer ' + access_token },
                 json: true
               };
-              request.get(danceability, function(error, response, body) {
+              request.get(uniqueSort, function(error, response, body) {
                 var sortedplaylist = mergeSort(body.audio_features) 
                 console.log(sortedplaylist)
               })
-
-
 
            }
         /**
