@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var async = require('async');
 var bodyParser = require('body-parser');
 var path = require('path');
-var Promise = require('promise');
 
 var client_id = '7dd4b4ac52fd4780899e7dd4cc3b632a'; // Your client id
 var client_secret = '827dfaf9723541d99953b27293ec91ab'; // Your secret
@@ -16,7 +15,6 @@ var redirect_uri = 'http://localhost:8080/callback';
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-
 
 var generateRandomString = function(length) {
   var text = '';
@@ -64,8 +62,8 @@ app.post('/usernames', function(req, res) {
 	else{
 		usernames = req.body.count
 	}
-})
 
+})
 
 
 
@@ -230,11 +228,21 @@ function merge(left, right)
     var result = [];
  
     while (left.length && right.length) {
-        if (left[0].track.popularity >= right[0].track.popularity) {
+        if (sorttype == "popularity"){
+          if (left[0].track.popularity >= right[0].track.popularity) { 
             result.push(left.shift());
-        } else {
+          } else {
             result.push(right.shift());
+         }
         }
+        if (sorttype == "danceability"){
+          if (left[0].danceability >= right[0].danceability) {   
+            result.push(left.shift());
+          } else {
+            result.push(right.shift());
+         }
+        } 
+        
     }
  
     while (left.length)
@@ -251,6 +259,7 @@ var createdplaylistid;
 
 
 var errors = 0;
+var sorttype = '';
 app.post('/mixify', function(req, res) {
   //creates a playlist
   var createdplaylist = {
@@ -263,18 +272,22 @@ app.post('/mixify', function(req, res) {
   };
   request.post(createdplaylist, function(error, response, body) {
     createdplaylistid = body.id;
-    console.log("User Created Playlist Information")
-    console.log(body)
+    //console.log("User Created Playlist Information")
+    //console.log(body)
   })
 
   //cleans up imported user playlists
   var usergenre = req.body.genre
   var userPlaylists = req.body.count
+  sorttype = req.body.sorttype
 
   //converts userplaylist to api url links
   var convertedPlaylists = convertUserPlaylists(userPlaylists);
-  console.log("List of User Playlists to send to API")
+  console.log("List of Playlists to send to API:")
   console.log(convertedPlaylists)
+  console.log("Sorting Type:")
+  console.log(sorttype)
+
 
   //sets party duration, userplaylists, and playlist duration
   var partyDuration = req.body.slider;
@@ -297,20 +310,46 @@ app.post('/mixify', function(req, res) {
     //})
     request.get(playlists, function(error, response, body) {
         var currentDuration = 0;
+        //console.log(body.items)
         try{
-        var sortedplaylist = mergeSort(body.items);
-        var song = 0;
-        while (currentDuration <= playlistDuration){
+          if (sorttype == "popularity"){
+              var sortedplaylist = mergeSort(body.items);
+              var song = 0;
+        	  while (currentDuration <= playlistDuration){
         		if (totalSongs.indexOf(sortedplaylist[song].track.id) == -1){
         			finalplaylist.push(sortedplaylist[song].track.id)
         			totalSongs.push(sortedplaylist[song].track.id) //used to test for duplicates
                 	currentDuration += sortedplaylist[song].track.duration_ms
                 	console.log("Current Duration: " + currentDuration + " Iteration: " + song)
-        		}
-                
+        		}    
         		song++;
+       		  }
+           }
+          if (sorttype == "danceability"){
+            var trackids = ""
+              for (trackid = 0; trackid < body.items.length; trackid++){
+                trackids = trackids + body.items[trackid].track.id + ','
 
-        }
+              }              
+              var danceability = {
+                url: 'https://api.spotify.com/v1/audio-features?ids=' + trackids,
+                headers: { 'Authorization': 'Bearer ' + access_token },
+                json: true
+              };
+              request.get(danceability, function(error, response, body) {
+                var sortedplaylist = mergeSort(body.audio_features) 
+                console.log(sortedplaylist)
+              })
+
+
+
+           }
+        /**
+          TODO: Make sorted playlists global
+                Do while loop for danceability
+                Rest of the code should be the same
+        **/
+        
     	console.log("Songs to add to playlist: ")
     	console.log(finalplaylist)
     	var addSongsToPlaylist = {
@@ -328,18 +367,12 @@ app.post('/mixify', function(req, res) {
     	finalplaylist = [];
         }
         catch(err){
-        console.log("Error in Fetching Playlist")  
-        error = true;
+          console.log("Error in Fetching Playlist")  
+          error = true;
         }
   	})
    }
-   	for (fake = 0; fake < 100000; fake++){}
-   	console.log("final error" + error)
-   	if (error == false){
-   		res.sendfile(path.join(__dirname + '/public/mixify.html'));
-   	}else{
-   		res.sendfile(path.join(__dirname + '/public/error.html'));
-   	}
+   res.sendfile(path.join(__dirname + '/public/mixify.html'));
 	
 });
 

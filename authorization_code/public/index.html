@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 
 <html>
+
   <head>
     <title>Mixify</title>
     <script src="jquery-3.2.1.min.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="css.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+    <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
+    <script src="test.js"></script>
     <!-- <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
-
   </head>
   
   <body>
+    
+        </script>
     <div class="row">
                <div class="col-lg-6">
                   <img class="logo" src="http://www.scdn.co/i/_global/open-graph-default.png">
@@ -22,6 +27,7 @@
  
             </div>
     <div class="container">
+
       <div id="login">
         <h1></h1>
 
@@ -35,8 +41,6 @@
         <br>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
         </form>
-
-
       </div>
 
       <div id="loggedin">
@@ -55,14 +59,54 @@
             <center><p>Event Duration (min): <span id="demo"></span></p></center>
           </div>
 
+          
+
+<script id="itemTemplate" type="text/x-jquery-tmpl">
+            <tr>
+                <td>${Name}</td>
+                <td>${Price}</td>
+                <td>${Quantity}</td>
+                <td>${Total}</td>
+            </tr>
+        </script>
+
+        <table id="itemList">
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Price</td>
+                    <td>Quantity</td>
+                    <td>Total</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <script type="text/javascript">
+                var items = [
+                    { Name: "Apple", Price: "80", Quantity : "3", Total : "240" },
+                    { Name: "Orance", Price: "50", Quantity : "4", Total : "200" },
+                    { Name: "Banana", Price: "20", Quantity : "8", Total : "160" },
+                    { Name: "Cherry", Price: "250", Quantity : "10", Total : "2500" }
+                ];
+
+                $( "#itemTemplate" ).tmpl( items ).appendTo( "#itemList tbody" );
+        </script>
+
+
+
+
+
+
         <div class="row">
                
                <br>
                <div class="col-lg-6">
                     <div class="panel panel-success">
                     	<div class="panel-body">
-                            <center><input type="CHECKBOX" id="CHECKBOX_3"> I have read the disclaimer <center>
-                  			</center></center>
+                            <input type="radio" name="sorttype" value="popularity"> Popularity<br>
+                            <input type="radio" name="sorttype" value="danceability"> Daceability<br>
                   		</div>
 
                		</div>
@@ -89,6 +133,18 @@
 
       </div>
     </div>
+
+
+
+        <table id="resultsTable1"
+          class="sortable table table-bordered table-striped">
+          <thead>
+
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+
 
     <script id="user-profile-template" type="text/x-handlebars-template">
       <br>
@@ -135,13 +191,8 @@
                 $(this).remove();
                 $(fielddID).remove();
             });
-    });
-    
-
-    
-});
-
-
+    });  
+  });
 </script>
 
 
@@ -271,6 +322,7 @@ slider.oninput = function() {
     
 });
 </script>
+
   </body>
 </html>
 
