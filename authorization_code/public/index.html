@@ -10,14 +10,31 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
     <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
     <script src="test.js"></script>
+    <script>
+         function validateForm() {
+            var x = document.forms["/mixify"]["finalplaylistname"].value;
+            var y = document.forms["/mixify"]["count"].value;
+            if (x == null || x == "" || x == " ")
+            {
+               alert("Please Add a Playlist Name");
+               return false;
+            }
+            if (y == null || y == "" || y == " ")
+            {
+               alert("Please Add a Playlist Link");
+               return false;
+            }
+         }
+      </script>
     <!-- <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
+
   </head>
   
   <body>
     
-        </script>
+
     <div class="row">
                <div class="col-lg-6">
                   <img class="logo" src="http://www.scdn.co/i/_global/open-graph-default.png">
@@ -26,11 +43,11 @@
                <br>
  
             </div>
-
+<div id="login">
             <div class="row">
                <div class="col-lg-6">
                <div class="container">
-                <div id="login">
+                
         <h1></h1>
 
         
@@ -45,14 +62,17 @@
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
         </form>
       </div>
-    </div>
+    
                <!-- /.panel -->
                </div>
                <div class="col-lg-6">
                     <iframe src="https://open.spotify.com/embed?uri=spotify:user:chirag323:playlist:2BRwh3eb8V214GzUsJXpTQ" width="500" height="450" frameborder="0" allowtransparency="true"></iframe>
+          
+
+
                 </div>
                
-               
+            </div>   
       </div>
     <div class="container">
 
@@ -65,7 +85,7 @@
         <div id="app">
 
         <center><h2>Mixify</h2></center><br>
-        <form method="post" action="/mixify" name="/mixify">
+        <form method="post" action="/mixify" name="/mixify" onsubmit="return validateForm()">
           
           <div id="slidecontainer">
             <input type="range" min="40" max="180" class="slider" id="myRange" name="slider">
@@ -115,8 +135,11 @@
         <div class="row">
                
                <br>
-               <div class="col-lg-6">
+               <div class="col-lg-2">
                     <div class="panel panel-success">
+                      <div class="panel-heading">
+                     Sort Type
+                  </div>
                     	<div class="panel-body">
                             <input type="radio" name="sorttype" value="popularity" checked="checked"> Popularity<br>
                             <input type="radio" name="sorttype" value="danceability"> Daceability<br>
@@ -127,13 +150,30 @@
 
                		</div>
                </div> 
-
-               <div class="col-lg-6">
-                <div class="playlists">
-                <button class="add_field_button">Add Playlists</button>
-                <div><input type="text" name="count" ></div>
+               <div class="col-lg-5">
+                <div class="panel panel-success">
+                  <div class="panel-heading">
+                     Add Playlist Information
+                  </div>
+                  <div class="panel-body">
+                    <label>Name</label>
+                    <input class="form-control" name="finalplaylistname" id="finalplaylistname" placeholder="Enter Mixify Playlist Name">
+                    <br>
+                  </div> 
               </div>
-               </div>     
+            </div>
+              
+               <div class="col-lg-5">
+                <div class="panel panel-success">
+                  <div class="panel-heading">Add Playlist Links</div>
+                  <div class="panel-body">
+                  <div class="playlists">
+                    <button class="add_field_button">Add Playlists</button>
+                    <div><input type="text" name="count" ></div>
+                  </div>
+                </div>
+               </div>   
+              </div>  
       	</div>
         <br>
 

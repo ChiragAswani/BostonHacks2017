@@ -288,14 +288,14 @@ app.post('/mixify', function(req, res) {
           url: 'https://api.spotify.com/v1/users/' + username + '/playlists',
           headers: { 'Authorization': 'Bearer ' + access_token },
           body: {"description": "Private playlist created by mixifyapp",
-                 "public": false,
-                 "name": "Mixify Playlist"},
+                 "public": true,
+                 "name": req.body.finalplaylistname},
           json: true
   };
   request.post(createdplaylist, function(error, response, body) {
-    createdplaylistid = body.id;
-    //console.log("User Created Playlist Information")
-    //console.log(body)
+    createdplaylistid = body.id
+    var createdplaylisturi = body.uri; 
+    var embeddedFrame = "https://open.spotify.com/embed?uri=" + createdplaylistid //PASS THIS TO HTML FRAME
   })
 
   //cleans up imported user playlists
@@ -418,9 +418,11 @@ app.post('/mixify', function(req, res) {
         }
   	})
    }
-   res.sendfile(path.join(__dirname + '/public/mixify.html'));
+   res.sendfile(path.join(__dirname + '/public/index.html'));
 	
 });
+
+
 
 
 app.get('/refresh_token', function(req, res) {
