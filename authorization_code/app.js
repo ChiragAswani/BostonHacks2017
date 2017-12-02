@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var async = require('async');
 var bodyParser = require('body-parser');
 var path = require('path');
+require("require.async")(require);
 
 var client_id = '7dd4b4ac52fd4780899e7dd4cc3b632a'; // Your client id
 var client_secret = '827dfaf9723541d99953b27293ec91ab'; // Your secret
@@ -336,15 +337,30 @@ app.post('/mixify', function(req, res) {
           if (sorttype == "popularity"){
               var sortedplaylist = mergeSort(body.items);
               var song = 0;
-        	  while (currentDuration <= playlistDuration){
-        		if (totalSongs.indexOf(sortedplaylist[song].track.id) == -1){
-        			finalplaylist.push(sortedplaylist[song].track.id)
-        			totalSongs.push(sortedplaylist[song].track.id) //used to test for duplicates
-                	currentDuration += sortedplaylist[song].track.duration_ms
-                	console.log("Current Duration: " + currentDuration + " Iteration: " + song)
-        		}    
-        		song++;
-       		  }
+          	  while (currentDuration <= playlistDuration){
+          		  if (totalSongs.indexOf(sortedplaylist[song].track.id) == -1){
+          			    finalplaylist.push(sortedplaylist[song].track.id)
+          			   totalSongs.push(sortedplaylist[song].track.id) //used to test for duplicates
+                  	currentDuration += sortedplaylist[song].track.duration_ms
+                  	console.log("Current Duration: " + currentDuration + " Iteration: " + song)
+          		  }    
+          		song++;
+         		  }
+              console.log("Songs to add to playlist: ")
+      console.log(finalplaylist)
+      var addSongsToPlaylist = {
+          url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+      };
+      for (songID = 0; songID < finalplaylist.length; songID++){
+          addSongsToPlaylist.url += 'spotify%3Atrack%3A'+ finalplaylist[songID] + ','
+      } 
+      console.log("Number of snapshots should be equal to number of playlists")
+      request.post(addSongsToPlaylist, function(error, response, body) {
+            console.log(body)
+        })
+      finalplaylist = [];
            }
           else{
             var trackids = ""
@@ -359,8 +375,33 @@ app.post('/mixify', function(req, res) {
               };
               request.get(uniqueSort, function(error, response, body) {
                 var sortedplaylist = mergeSort(body.audio_features) 
-                console.log(sortedplaylist)
+                var song = 0;
+                while (currentDuration <= playlistDuration){
+                  if (totalSongs.indexOf(sortedplaylist[song].id) == -1){
+                      finalplaylist.push(sortedplaylist[song].id)
+                     totalSongs.push(sortedplaylist[song].id) //used to test for duplicates
+                      currentDuration += sortedplaylist[song].duration_ms
+                      console.log("Current Duration: " + currentDuration + " Iteration: " + song)
+                  }    
+                song++;
+                }
+                console.log("Songs to add to playlist: ")
+      console.log(finalplaylist)
+      var addSongsToPlaylist = {
+          url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+      };
+      for (songID = 0; songID < finalplaylist.length; songID++){
+          addSongsToPlaylist.url += 'spotify%3Atrack%3A'+ finalplaylist[songID] + ','
+      } 
+      console.log("Number of snapshots should be equal to number of playlists")
+      request.post(addSongsToPlaylist, function(error, response, body) {
+            console.log(body)
+        })
+      finalplaylist = [];
               })
+
 
            }
         /**
@@ -369,21 +410,7 @@ app.post('/mixify', function(req, res) {
                 Rest of the code should be the same
         **/
         
-    	console.log("Songs to add to playlist: ")
-    	console.log(finalplaylist)
-    	var addSongsToPlaylist = {
-        	url: 'https://api.spotify.com/v1/users/' + username + '/playlists/' + createdplaylistid + '/tracks?uris=',
-        	headers: { 'Authorization': 'Bearer ' + access_token },
-        	json: true
-    	};
-    	for (songID = 0; songID < finalplaylist.length; songID++){
-        	addSongsToPlaylist.url += 'spotify%3Atrack%3A'+ finalplaylist[songID] + ','
-    	} 
-    	console.log("Number of snapshots should be equal to number of playlists")
-    	request.post(addSongsToPlaylist, function(error, response, body) {
-        		console.log(body)
-       	})
-    	finalplaylist = [];
+    	
         }
         catch(err){
           console.log("Error in Fetching Playlist")  
